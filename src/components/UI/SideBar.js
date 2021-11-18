@@ -17,8 +17,8 @@ const SideBar = () => {
                     <p className="text-gray-300 mt-3">Administra tu restaurante</p>
 
                     <nav className="mt-10">
-                        <NavLink style={ ({ isActive }) => isActive ? activeStyle : undefined  } className="text-gray-400 py-1 my-3 hover:bg-white hover:text-gray-500 block" to="/">Ordenes</NavLink>
-                        <NavLink style={ ({ isActive }) => isActive ? activeStyle : undefined  } className="text-gray-400 py-1 my-3 hover:bg-white hover:text-gray-500 block" to="/menu">Menu</NavLink>
+                        <NavLink style={ ({ isActive }) => isActive ? activeStyle : undefined  } className="text-gray-400 py-1 my-3 hover:bg-white hover:text-gray-500 block text-center rounded-3xl" to="/">Ordenes</NavLink>
+                        <NavLink style={ ({ isActive }) => isActive ? activeStyle : undefined  } className="text-gray-400 py-1 my-3 hover:bg-white hover:text-gray-500 block text-center rounded-3xl" to="/menu">Menu</NavLink>
                     </nav>
                 </div>
             </div>

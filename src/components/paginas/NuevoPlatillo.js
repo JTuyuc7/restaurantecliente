@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { FirebaseContext } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
+import FileUploader from 'react-firebase-file-uploader';
 
 const NuevoPlatillo = () => {
+
+    //State para la imagen
+    const [ subiendo, guardarSubiendo ] = useState(false);
+    const [ progreso, guardarProgreso ] = useState(0);
+    const [ url, guardarUrl ] = useState('');
+    //const [ error, guardarError ] = useState(false);
+
+    //Context con las operaciones de firebase
+    const { firebase } = useContext(FirebaseContext);
+
+    // Hook para navegacion react-router-dom v6
+    const navigate = useNavigate();
 
     const formik = useFormik({
         initialValues: {
@@ -18,11 +33,40 @@ const NuevoPlatillo = () => {
             categoria: yup.string().required('Debes seleccionar una categoria'),
             descripcion: yup.string().min(5, 'La descripcion es invalida').required('La descripcion es obligatoria')
         }),
-        onSubmit: (datos) => {
-            console.log(datos, 'datos|')
+        onSubmit: (platillo) => {
+            try {
+                platillo.existencia = true;
+                platillo.imagen = url;
+                firebase.db.collection('productos').add(platillo);
+
+                // Redireccionar al guardar el platillo
+                navigate('/menu')
+            } catch (error) {
+                console.log(error, 'Unable to save data')
+            }
         }
     });
 
+    // Funciones para las imagenes
+    const handleUploadStart = () => {
+        guardarProgreso(0)
+        guardarSubiendo(true)
+    }
+    const handleUploadError = (error) => {
+        guardarSubiendo(false)
+    }
+    const handleUploadSuccess = async ( nombre ) => {
+        guardarProgreso(100)
+        guardarSubiendo(false)
+
+        // Guardar la imagen enstorage
+        const url = await firebase.storage.ref('productos').child(nombre).getDownloadURL();
+        guardarUrl(url)
+    }
+    const handleProgress = (progreso) => {
+        guardarProgreso(progreso)
+        console.log(progreso, 'progreso')
+    }
     return (  
         <>
             <div className="p-5">
@@ -109,23 +153,29 @@ const NuevoPlatillo = () => {
                                     className="block text-gray-700 text-sm font-bold"
                                     htmlFor="imagen"
                                 >Imagen</label>
-                                <input
-                                    className="shadow appearance-none border rounded-2xl w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-3"
-                                    type="file"
-                                    //placeholder="Nombre platillo"
-                                    //style={{ textIndent: 15}}
+                                <FileUploader
+                                    accept="image/*"
                                     id="imagen"
-                                    value={ formik.values.imagen }
-                                    onChange={ formik.handleChange }
+                                    name="imagen"
+                                    randomizefilename="true"
+                                    storageRef={ firebase.storage.ref('productos')}
+                                    onUploadStart={ handleUploadStart }
+                                    onUploadError={ handleUploadError }
+                                    onUploadSuccess={ handleUploadSuccess }
+                                    onProgress={ handleProgress }
                                 />
                             </div>
-                                {/* 
-                                    { formik.touched.precio && formik.errors.precio ? (
-                                        <div className="bg-red-700 rounded-2xl mb-4 p-2" role="alert">
-                                            <p className="text-white uppercase text-center font-bold">{formik.errors.precio}</p>
+                                { subiendo && (
+                                    <div className="h-8 relative w-full border ">
+                                        <div className="bg-green-500 absolute left-0 top-0 text-white px-2 text-sm h-8 flex items-center" style={{ width: `${progreso} %`}}>
+                                            {progreso} %
                                         </div>
-                                    ): null }
-                                */}
+                                    </div>
+                                ) }
+
+                                { url && (
+                                    <p className="mb-5 bg-green-600 text-white text-center rounded-3xl uppercase font-bold py-1">Imagen subida</p>
+                                )}
                             <div className="mb-4">
                                 <label
                                     className="block text-gray-700 text-sm font-bold"

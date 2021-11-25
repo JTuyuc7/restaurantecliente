@@ -24,7 +24,7 @@ const Menu = () => {
     }
 
     // Manejar real time updated
-    const handleSnapshot = (snapshot) => {
+    function handleSnapshot (snapshot) {
         const platillos = snapshot.docs.map( doc => {
             return {
                 id: doc.id,
@@ -39,7 +39,7 @@ const Menu = () => {
     return (  
         <>
             <div className=" px-10 py-3">
-                <h2 className="text-xl font-medium mb-5">Desde Menu</h2>
+                <h2 className="text-xl font-medium mb-5">Nuestro Menu</h2>
 
                 <NavLink className="my-10 p-3 bg-blue-800 text-white rounded-xl uppercase mb-4" to="/nuevo-platillo">Agregar Platillo</NavLink>
 
